@@ -9,6 +9,7 @@ from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.common import TimeoutException, ElementClickInterceptedException
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
@@ -169,7 +170,10 @@ def write_to_csv(products: List[Product], url: str) -> None:
 
 
 def get_all_products() -> None:
-    with webdriver.Chrome() as driver:
+    chrome_options = Options()
+    chrome_options.add_argument("--headless=new")
+
+    with webdriver.Chrome(options=chrome_options) as driver:
         set_driver(driver)
 
         urls = get_all_urls(HOME_URL)
