@@ -95,7 +95,7 @@ def get_all_urls(url: str) -> List[str]:
 
 def get_single_product(product: BeautifulSoup) -> Product:
     title = product.select_one(".title")["title"]
-    description = product.select_one(".description").text
+    description = product.select_one(".description").text.replace("\xa0", " ")
     price = float(product.select_one(".price").text.replace("$", ""))
     rating = len(product.select("span.ws-icon.ws-icon-star"))
     num_of_reviews = int(product.select_one(".review-count").text.split()[0])
@@ -115,7 +115,7 @@ def get_single_page(page_soup: BeautifulSoup) -> List[Product]:
     return [get_single_product(product) for product in products]
 
 
-def get_all_products(url: str) -> List[Product]:
+def get_all_page_products(url: str) -> List[Product]:
     driver = get_driver()
     driver.get(url)
 
@@ -168,18 +168,17 @@ def write_to_csv(products: List[Product], url: str) -> None:
     logging.info("End of writing to file.")
 
 
-def main() -> None:
+def get_all_products() -> None:
     with webdriver.Chrome() as driver:
         set_driver(driver)
 
         urls = get_all_urls(HOME_URL)
 
         for url in tqdm(urls):
-            products = get_all_products(url)
+            products = get_all_page_products(url)
 
             write_to_csv(products, url)
 
 
 if __name__ == "__main__":
-    main()
-    # get_all_products()
+    get_all_products()
