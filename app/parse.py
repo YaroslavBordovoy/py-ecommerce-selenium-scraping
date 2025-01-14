@@ -123,16 +123,17 @@ def get_all_products(url: str) -> List[Product]:
         try:
             more_button = WebDriverWait(driver, 1).until(
                 expected_conditions.element_to_be_clickable(
-                    (By.CSS_SELECTOR, "a[class*='btn']")
+                    (By.CLASS_NAME, "ecomerce-items-scroll-more")
                 )
             )
-            if more_button.is_displayed():
-                driver.execute_script(
-                    "arguments[0].scrollIntoView(true);",
-                    more_button
-                )
-            time.sleep(1)
+
+            driver.execute_script(
+                "arguments[0].scrollIntoView(true);",
+                more_button
+            )
+
             more_button.click()
+            time.sleep(1)
         except TimeoutException:
             logging.error("The waiting time was exceeded.")
             break
@@ -173,12 +174,10 @@ def main() -> None:
 
         urls = get_all_urls(HOME_URL)
 
-        # for url in tqdm(urls):
-        #     products = get_all_products(url)
+        for url in tqdm(urls):
+            products = get_all_products(url)
 
-        products = get_all_products(urls[4])
-
-        write_to_csv(products, urls[4])
+            write_to_csv(products, url)
 
 
 if __name__ == "__main__":
