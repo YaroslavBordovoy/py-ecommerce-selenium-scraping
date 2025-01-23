@@ -16,8 +16,6 @@ from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 from tqdm import tqdm
 
-from app.driver import get_driver, set_driver
-
 
 BASE_URL = "https://webscraper.io/"
 HOME_URL = urljoin(BASE_URL, "test-sites/e-commerce/more/")
@@ -56,10 +54,9 @@ def check_cookies(driver: WebDriver) -> None:
         logging.info("Cookie acceptance button not found or not clickable.")
 
 
-def get_all_urls(url: str) -> List[str]:
+def get_all_urls(driver: WebDriver, url: str) -> List[str]:
     logging.info("Link collection begins.")
 
-    driver = get_driver()
     driver.get(url)
     check_cookies(driver)
 
@@ -116,8 +113,7 @@ def get_single_page(page_soup: BeautifulSoup) -> List[Product]:
     return [get_single_product(product) for product in products]
 
 
-def get_all_page_products(url: str) -> List[Product]:
-    driver = get_driver()
+def get_all_page_products(driver: WebDriver, url: str) -> List[Product]:
     driver.get(url)
 
     while True:
@@ -174,12 +170,10 @@ def get_all_products() -> None:
     chrome_options.add_argument("--headless=new")
 
     with webdriver.Chrome(options=chrome_options) as driver:
-        set_driver(driver)
-
-        urls = get_all_urls(HOME_URL)
+        urls = get_all_urls(driver, HOME_URL)
 
         for url in tqdm(urls):
-            products = get_all_page_products(url)
+            products = get_all_page_products(driver, url)
 
             write_to_csv(products, url)
 
